@@ -7,42 +7,35 @@
 
 from runner.koan import *
 
-import re  # For regular expression string comparisons
-
+import re # For regular expression string comparisons
 
 class AboutWithStatements(Koan):
     def count_lines(self, file_name):
+        file = open(file_name)
         try:
-            f = open(file_name)
-            try:
-                return len(f.readlines())
-            finally:
-                f.close()
-        except IOError:
-            # should never happen
-            self.fail()
+            count = 0
+            for line in file.readlines():
+                count += 1
+            return count
+        finally:
+            if file: file.close()
 
     def test_counting_lines(self):
-        self.assertEqual(__, self.count_lines("example_file.txt"))
+        self.assertEqual( 4 , self.count_lines("example_file.txt"))
 
     # ------------------------------------------------------------------
 
     def find_line(self, file_name):
+        file = open(file_name)
         try:
-            f = open(file_name)
-            try:
-                for line in f.readlines():
-                    match = re.search('e', line)
-                    if match:
-                        return line
-            finally:
-                f.close()
-        except IOError:
-            # should never happen
-            self.fail()
+            for line in file.readlines():
+                match = re.search('e', line)
+                if match: return line
+        finally:
+            if file: file.close()
 
     def test_finding_lines(self):
-        self.assertEqual(__, self.find_line("example_file.txt"))
+        self.assertEqual('test\n', self.find_line("example_file.txt"))
 
     ## ------------------------------------------------------------------
     ## THINK ABOUT IT:
@@ -51,8 +44,8 @@ class AboutWithStatements(Koan):
     ## They both follow the pattern of "sandwich code".
     ##
     ## Sandwich code is code that comes in three parts: (1) the top slice
-    ## of bread, (2) the meat, and (3) the bottom slice of bread.
-    ## The bread part of the sandwich almost always goes together, but
+    ## of bread, (2) the meat, and (3) the bottom slice of bread.  The
+    ## the bread part of the sandwich almost always goes together, but
     ## the meat part changes all the time.
     ##
     ## Because the changing part of the sandwich code is in the middle,
@@ -82,27 +75,38 @@ class AboutWithStatements(Koan):
     # Now we write:
 
     def count_lines2(self, file_name):
-        with self.FileContextManager(file_name) as f:
-            return len(f.readlines())
+        with self.FileContextManager(file_name) as file:
+            count = 0
+            for line in file.readlines():
+                count += 1
+        return count
 
     def test_counting_lines2(self):
-        self.assertEqual(__, self.count_lines2("example_file.txt"))
+        self.assertEqual(4 , self.count_lines2("example_file.txt"))
 
     # ------------------------------------------------------------------
 
     def find_line2(self, file_name):
         # Rewrite find_line using the Context Manager.
+        with self.FileContextManager(file_name) as file:
+            for line in file.readlines():
+                match = re.search('e', line)
+                if match: return line
+
         pass
 
     def test_finding_lines2(self):
-        self.assertEqual(__, self.find_line2("example_file.txt"))
+        self.assertEqual('test\n', self.find_line2("example_file.txt"))
         self.assertNotEqual(None, self.find_line2("example_file.txt"))
 
     # ------------------------------------------------------------------
 
     def count_lines3(self, file_name):
-        with open(file_name) as f:
-            return len(f.readlines())
+        with open(file_name) as file:
+            count = 0
+            for line in file.readlines():
+              count += 1
+            return count
 
     def test_open_already_has_its_own_built_in_context_manager(self):
-        self.assertEqual(__, self.count_lines3("example_file.txt"))
+        self.assertEqual(4, self.count_lines3("example_file.txt"))
